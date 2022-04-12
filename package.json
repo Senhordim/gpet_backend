@@ -13,6 +13,7 @@
     "multer": "^1.4.4"
   },
   "devDependencies": {
+    "dotenv": "^16.0.0",
     "nodemon": "^2.0.15"
   },
   "scripts": {

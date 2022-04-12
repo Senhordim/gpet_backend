@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
 
@@ -9,7 +10,7 @@ app.use(express.json());
 // Solve cors
 app.use(cors({ 
     credentials: true, 
-    origin: 'http://localhost:3000'
+    origin: `${process.env.DATABASE_URL}`
     }
 ));
 
