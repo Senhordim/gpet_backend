@@ -9,7 +9,14 @@ const createUserToken = require('../../helpers/createUserToken');
 const getToken = require('../../helpers/getToken');
 module.exports = class UserController {
     static async register(req, res){
-        const { name, email, password, passwordConfirmation, image, phone  } = req.body;
+        const { 
+            name, 
+            email, 
+            password, 
+            passwordConfirmation, 
+            image, 
+            phone  
+        } = req.body;
 
         if(!name){
             res.status(422).json({ message: 'Nome é obrigátorio'});
@@ -69,10 +76,7 @@ module.exports = class UserController {
 
         try {
             const newUser = await user.save();
-
             await createUserToken(newUser, req, res);
-
-            // res.status(201).json({ message: 'Usuário criado com sucesso', newUser});
         } catch (error) {
             res.status(500).json({ message: error });
         }
@@ -124,6 +128,16 @@ module.exports = class UserController {
         res.status(200).send(currentUser)
     }
 
-    
+    static async getUserById(req, res){
+        const { id } = req.params;
+
+        const user = await UserModel.findById(id).select("-password");
+
+        return res.json(user)
+    }
+
+    // static async update(req, res){
+        
+    // }
 }
 
