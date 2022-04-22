@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
 
 const createUserToken = require('../../helpers/createUserToken');
 const getToken = require('../../helpers/getToken');
+const getUserByToken = require('../../helpers/getUserByToken');
 module.exports = class UserController {
     static async register(req, res){
         const { 
@@ -144,11 +145,106 @@ module.exports = class UserController {
     }
 
     static async update(req, res){
+    
+        const token = getToken(req);
 
-            
- 
-            res.status(200).json({ message: 'Deu certo!'});
+        const user = await getUserByToken(token);
+
+        const { 
+            name,
+            email,
+            phone,
+            password,
+            passwordConfirmation,
+            image
+        } = req.body;
+
+        
+        // let image = '';
+
+        if(!name){
+            res.status(422).json({ message: 'Nome é obrigátorio'});
             return;
+        }
+
+        user.name = name;
+
+        if(!email){
+            res.status(422).json({ message: 'Email é obrigátorio'});
+            return;
+        }
+
+        if(!password){
+            res.status(422).json({ message: 'Senha é obrigátorio'});
+            return;
+        }
+
+        if(!passwordConfirmation){
+            res.status(422).json({ message: 'Confirmação de senha é obrigátorio'});
+            return;
+        }
+
+        if(!image){
+            res.status(422).json({ message: 'Imagem é obrigátorio'});
+            return;
+        }
+
+        if(!phone){
+            res.status(422).json({ message: 'Telefone é obrigátorio'});
+            return;
+        }
+
+        if(!phone){
+            res.status(422).json({ message: 'Telefone é obrigátorio'});
+            return;
+        }
+
+        const userPhoneExists = await UserModel.findOne({phone: phone});
+        if(user.phone != phone && userPhoneExists){
+            res.status(422).json({ message: 'Esse Telefone já está em uso'});
+            return;
+        }
+
+        user.phone = phone;
+        
+
+        if(password !== passwordConfirmation){
+            res.status(422).json({ message: 'O campo senha e confirmação de senha não pode ser diferente'});
+            return;
+        } else if(password === passwordConfirmation && password !== null){
+            const salt = await bcrypt.genSalt(12);
+            const passwordHash = await bcrypt.hash(password, salt); 
+            user.password = passwordHash
+        }
+
+        const userExists = await UserModel.findOne({email: email});
+
+        if(user.email != email && userExists){
+            res.status(422).json({ message: 'Email já está uso, utilize outro email'});
+            return;
+        }
+
+        user.email = email
+
+        
+        if(!user){
+            res.status(422).json({ message: 'Usuário não encontrado'});
+            return;
+        }
+
+        try {
+            await UserModel.findOneAndUpdate(
+                { _id: user.id},
+                {$set: user},
+                {new: true}
+            );
+
+            return res.json({ message: 'Usuário atualizado com sucesso!' })
+
+
+        } catch (error) {
+            res.status(500).json({ message: error});
+        }
      
     }
 }
