@@ -4,7 +4,7 @@ const createUserToken = async(user, _, res) => {
     const token = jwt.sign({
         name: user.name,
         id: user._id
-    }, "nossosecret");
+    }, process.env.SECRET);
 
     res.json({
         message: "Autenticação concluida com sucesso!",

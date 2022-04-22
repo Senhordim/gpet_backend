@@ -1,4 +1,6 @@
 
+require('dotenv').config()
+
 const UserModel = require('../../models/user/UserModel');
 
 const jwt = require("jsonwebtoken");
@@ -118,7 +120,7 @@ module.exports = class UserController {
 
         if(req.headers.authorization){
             const token = getToken(req);
-            const decoded = jwt.verify(token, 'nossosecret');
+            const decoded = jwt.verify(token, process.env.SECRET);
             currentUser = await UserModel.findById(decoded.id)
             currentUser.password = undefined;
         } else {
@@ -133,11 +135,21 @@ module.exports = class UserController {
 
         const user = await UserModel.findById(id).select("-password");
 
+        if(!user){
+            res.status(422).json({ message: 'Usuário não existe'});
+            return;
+        }
+
         return res.json(user)
     }
 
-    // static async update(req, res){
-        
-    // }
+    static async update(req, res){
+
+            
+ 
+            res.status(200).json({ message: 'Deu certo!'});
+            return;
+     
+    }
 }
 
